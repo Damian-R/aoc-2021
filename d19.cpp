@@ -34,7 +34,6 @@ t3 vec3_add(const t3& a, const t3& b) {
 
 class Beacon {
     public:
-    int id; // debug help
     t3 location;
     set<double> dists; // distances to other beacons
     Beacon(int x, int y, int z) : location(make_tuple(x, y, z)) {}
@@ -54,7 +53,7 @@ class Beacon {
     }
 
     friend bool operator==(Beacon& b1, Beacon& b2) {
-        return b1[0] == b2[0] && b1[1] == b2[1] && b1[2] == b2[2];
+        return b1.location == b2.location;
     }
 };
 
@@ -155,7 +154,6 @@ int main() {
     while (!unknown_scanners.empty()) {
         s1->update_beacon_dists();
         for (auto s2 : unknown_scanners) {
-            s2->update_beacon_dists();
             auto beacon_intersection = beacon_set_intersection(s1, s2);
             auto s1_beacons = beacon_intersection[0];
             auto s2_beacons = beacon_intersection[1];
