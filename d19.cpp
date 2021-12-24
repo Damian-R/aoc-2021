@@ -102,8 +102,12 @@ vector<set<Beacon*>> beacon_set_intersection(Scanner* s, Scanner* o) {
     set<Beacon*> o_beacons;
     for (auto b1 : s->beacons) {
         for (auto b2 : o->beacons) {
-            // size must be greater than or equal to 11 since dists container
-            // does not contain distance to self
+            // if two beacons in different coordinate systems share at least 11 
+            // inter-beacon (from self to other beacons) vectors of
+            // equal magnitude, we consider them the same beacon.
+            // since we consider regions overlapping if there are at least 12
+            // shared beacons, at least 12 beacons within the overlap will satisfy
+            // this criteria
             if (beacon_distance_intersection_size(b1, b2) >= 11) {
                 s_beacons.insert(b1);
                 o_beacons.insert(b2);
