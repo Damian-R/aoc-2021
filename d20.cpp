@@ -2,38 +2,76 @@
 
 using namespace std;
 
+int kernel_to_int(vector<vector<char>>& pixels, int row, int col) {
+    vector<int> vert = { 0, 0, 0, 1, 1, 1, -1, -1, -1 };
+    vector<int> horiz = { 0, 1, -1, 0, 1, -1, 0, 1, -1 };
+
+    vector<int> bin;
+
+    for (int i = 0; i < 9; ++i) {
+        if (pixels[row+vert[i]][col+horiz[i]] == '#') bin.push_back(1);
+        else bin.push_back(0);
+    }
+
+    int result = 0;
+    for (int i = bin.size()-1; i >= 0; --i) {
+        result += pow(2, bin.size()-i-1);
+    }
+
+    return result;
+}
+
+vector<vector<char>> simulate_turn(string& algorithm, vector<vector<char>>& pixels) {
+    vector<vector<char>> new_board(pixels.size(), vector<char>(pixels.size()));
+
+    for (int i = 1; i < pixels.size()-1; ++i) {
+        for (int j = 1; j < pixels.size()-1; ++j) {
+            int val = kernel_to_int(pixels, i, j);
+            new_board
+        }
+    }
+
+    return new_board;
+}
+
 int main() {
+    int MAX_TURNS = 2, turn = 0;
     string algorithm;
     getline(cin, algorithm);
 
-    set<pair<int, int>> light_pixels;
+    vector<vector<char>> pixels;
 
     string line;
     getline(cin, line); // skip empty line
 
-    int y = 0;
-    int max_x = 0, min_x = 0, max_y = 0, min_y = 0;
     while (getline(cin, line)) {
-        for (int x = 0; x < line.size(); ++x)
-            if (line[x] == '#') {
-                light_pixels.insert(make_pair(y, x));
-                max_x = max(x, max_x);
-                max_y = max(y, max_y);
-                min_x = min(x, min_x);
-                min_y = min(y, min_y);
-            }
-        ++y;
+        vector<char> row;
+        for (auto c : line) row.push_back(c);
+        pixels.push_back(row);
     }
 
-    for (auto x : light_pixels) {
-        cout << x.first << " " << x.second << endl;
+    
+
+    while (turn < MAX_TURNS) {
+        char outer = turn % 2 == 0 ? '.' : '#';
+        vector<char> row(pixels.size(), outer);
+        pixels.insert(pixels.begin(), row);
+        pixels.push_back(row);
+
+        for (auto& r : pixels) {
+            r.insert(r.begin(), outer);
+            r.push_back(outer);
+        }
+
+        cout << "simulating on: " << endl;
+
+        for (auto row : pixels) {
+            for (auto col : row) cout << col;
+            cout << endl;
+        }
+
+        auto new_pixels = simulate_turn(algorithm, pixels);
+        ++turn;
     }
-
-    cout << min_x << " " << max_x << " " << min_y << " " << max_y << endl;
-    max_x = max_x + 2;
-    max_y = max_y + 2;
-    min_x = min_x - 2;
-    min_y = min_y - 2;
-
 
 }
