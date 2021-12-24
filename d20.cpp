@@ -3,8 +3,8 @@
 using namespace std;
 
 int kernel_to_int(vector<vector<char>>& pixels, int row, int col) {
-    vector<int> vert = { 0, 0, 0, 1, 1, 1, -1, -1, -1 };
-    vector<int> horiz = { 0, 1, -1, 0, 1, -1, 0, 1, -1 };
+    vector<int> vert = { -1, -1, -1, 0, 0, 0, 1, 1, 1 };
+    vector<int> horiz = { -1, 0, 1, -1, 0, 1, -1, 0, 1 };
 
     vector<int> bin;
 
@@ -15,19 +15,19 @@ int kernel_to_int(vector<vector<char>>& pixels, int row, int col) {
 
     int result = 0;
     for (int i = bin.size()-1; i >= 0; --i) {
-        result += pow(2, bin.size()-i-1);
+        result += bin[i]*pow(2, bin.size()-i-1);
     }
 
     return result;
 }
 
 vector<vector<char>> simulate_turn(string& algorithm, vector<vector<char>>& pixels) {
-    vector<vector<char>> new_board(pixels.size(), vector<char>(pixels.size()));
+    vector<vector<char>> new_board(pixels.size()-2, vector<char>(pixels.size()-2));
 
     for (int i = 1; i < pixels.size()-1; ++i) {
         for (int j = 1; j < pixels.size()-1; ++j) {
             int val = kernel_to_int(pixels, i, j);
-            new_board
+            new_board[i-1][j-1] = algorithm[val];
         }
     }
 
@@ -35,7 +35,7 @@ vector<vector<char>> simulate_turn(string& algorithm, vector<vector<char>>& pixe
 }
 
 int main() {
-    int MAX_TURNS = 2, turn = 0;
+    int MAX_TURNS = 50, turn = 0;
     string algorithm;
     getline(cin, algorithm);
 
@@ -50,28 +50,36 @@ int main() {
         pixels.push_back(row);
     }
 
-    
-
     while (turn < MAX_TURNS) {
         char outer = turn % 2 == 0 ? '.' : '#';
         vector<char> row(pixels.size(), outer);
+        // Insert new top, bottom row
+        pixels.insert(pixels.begin(), row);
         pixels.insert(pixels.begin(), row);
         pixels.push_back(row);
+        pixels.push_back(row);
 
+        // Insert new left, right column
         for (auto& r : pixels) {
             r.insert(r.begin(), outer);
+            r.insert(r.begin(), outer);
+            r.push_back(outer);
             r.push_back(outer);
         }
 
-        cout << "simulating on: " << endl;
-
-        for (auto row : pixels) {
-            for (auto col : row) cout << col;
-            cout << endl;
-        }
-
         auto new_pixels = simulate_turn(algorithm, pixels);
+        pixels = new_pixels;
+
         ++turn;
     }
+
+    int light_pixels = 0;
+    for (auto row : pixels) {
+        for (auto col : row) {
+            if (col == '#') ++light_pixels;
+        }
+    }
+
+    cout << "Light pixels: " << light_pixels << endl;
 
 }
